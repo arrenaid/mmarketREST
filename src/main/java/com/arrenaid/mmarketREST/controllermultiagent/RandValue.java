@@ -1,4 +1,4 @@
-package com.arrenaid.mmarketREST.controller;
+package com.arrenaid.mmarketREST.controllermultiagent;
 
 import java.util.Random;
 

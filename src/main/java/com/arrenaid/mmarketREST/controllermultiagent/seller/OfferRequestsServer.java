@@ -2,6 +2,7 @@ package com.arrenaid.mmarketREST.controllermultiagent.seller;
 
 import com.arrenaid.mmarketREST.controllermultiagent.Market;
 import com.arrenaid.mmarketREST.model.Auction;
+import com.arrenaid.mmarketREST.model.Conversation;
 import com.arrenaid.mmarketREST.model.entity.Grid;
 import com.arrenaid.mmarketREST.model.entity.Loyalty;
 import jade.core.AID;
@@ -182,6 +183,14 @@ public class OfferRequestsServer extends CyclicBehaviour {
        myAgent.send(reply);
        //printSendMsg(reply);
    }
+   public void sendOrder(int acl, AID receiver,String conversationId, String content, String replyWith){
+       ACLMessage order = new ACLMessage(acl);//ACLMessage.ACCEPT_PROPOSAL
+       order.addReceiver(receiver);
+       order.setReplyWith(replyWith);
+       order.setContent(content);
+       order.setConversationId(conversationId);//"electricity-trade"
+       myAgent.send(order);
+   }
     public void printGotMsg(ACLMessage msg){
         String str = "ORS> -- step - " + Step + " To -- " + myAgent.getLocalName() +
                 " , got content -- " + msg.getContent() + ",\n\tForm -- " + msg.getSender().getLocalName()
@@ -203,15 +212,17 @@ public class OfferRequestsServer extends CyclicBehaviour {
             System.out.print("\twin- " + buyerAgents[winner].getLocalName() + "\tv- "
                     + buyerVolume[winner] + "\tp- "
                     + toString().valueOf(finalPrice));
-
-            ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
-            order.addReceiver(buyerAgents[winner]);
-            order.setContent(toString().valueOf(finalPrice));
-            order.setReplyWith("order" + System.currentTimeMillis());
-            order.setConversationId("electricity-trade");
-            myAgent.send(order);
+            String replyW = "order" + System.currentTimeMillis();
+            sendOrder(ACLMessage.ACCEPT_PROPOSAL, buyerAgents[winner],"electricity-trade",
+                    "you lose",replyW);
+//            ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+//            order.addReceiver(buyerAgents[winner]);
+//            order.setContent(toString().valueOf(finalPrice));
+//            order.setReplyWith("order" + System.currentTimeMillis());
+//            order.setConversationId("electricity-trade");
+//            myAgent.send(order);
             mt = MessageTemplate.and(MessageTemplate.MatchConversationId("electricity-trade"),
-                    MessageTemplate.MatchInReplyTo(order.getReplyWith()));
+                    MessageTemplate.MatchInReplyTo(replyW));
             Step = 2;
         } else {
             winner = -1;
@@ -219,13 +230,15 @@ public class OfferRequestsServer extends CyclicBehaviour {
         }
         for (int i = 0; i < buyersCfpCnt; i++) {
             if (i != winner) {
-                ACLMessage answer = new ACLMessage(ACLMessage.INFORM);
-                answer.addReceiver(buyerAgents[i]);
-                answer.setContent("you lose");
-                answer.setReplyWith("order" + System.currentTimeMillis());
-
-                answer.setConversationId("electricity-trade");
-                myAgent.send(answer);
+                sendOrder(ACLMessage.INFORM, buyerAgents[i],"electricity-trade",
+                        "you lose","order" + System.currentTimeMillis());
+//                ACLMessage answer = new ACLMessage(ACLMessage.INFORM);
+//                answer.addReceiver(buyerAgents[i]);
+//                answer.setContent("you lose");
+//                answer.setReplyWith("order" + System.currentTimeMillis());
+//
+//                answer.setConversationId("electricity-trade");
+//                myAgent.send(answer);
                 //printSendMsg(answer);
             }
         }
@@ -356,14 +369,18 @@ public class OfferRequestsServer extends CyclicBehaviour {
 //                                + myAgent.getLocalName() +"&\tb- "+ winner+"\tp- "
 //                                +toString().valueOf(getPrice(currentVolume, price, buyerVolume[winner], buyerCost[winner])));
 
-            ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
-            order.addReceiver(buyerAgents[winner]);
-            order.setContent(toString().valueOf(getPrice(currentVolume, price, buyerVolume[winner], buyerCost[winner])));
-            order.setReplyWith("order" + System.currentTimeMillis());
-            order.setConversationId("electricity-trade");
-            myAgent.send(order);
+            String replyWith = "order" + System.currentTimeMillis();
+            sendOrder(ACLMessage.ACCEPT_PROPOSAL, buyerAgents[winner],"electricity-trade",
+                    toString().valueOf(getPrice(currentVolume, price, buyerVolume[winner], buyerCost[winner])),
+                    replyWith);
+//            ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+//            order.addReceiver(buyerAgents[winner]);
+//            order.setContent(toString().valueOf(getPrice(currentVolume, price, buyerVolume[winner], buyerCost[winner])));
+//            order.setReplyWith("order" + System.currentTimeMillis());
+//            order.setConversationId("electricity-trade", Conversation.electricity_trade);
+//            myAgent.send(order);
             mt = MessageTemplate.and(MessageTemplate.MatchConversationId("electricity-trade"),
-                    MessageTemplate.MatchInReplyTo(order.getReplyWith()));
+                    MessageTemplate.MatchInReplyTo(replyWith));
             Step = 2;
 
         } else {
@@ -372,13 +389,15 @@ public class OfferRequestsServer extends CyclicBehaviour {
         }
         for (int i = 0; i < buyersCfpCnt; i++) {
             if (i != winner) {
-                ACLMessage answer = new ACLMessage(ACLMessage.INFORM);
-                answer.addReceiver(buyerAgents[i]);
-                answer.setContent("you lose");
-                answer.setReplyWith("order" + System.currentTimeMillis());
-
-                answer.setConversationId("electricity-trade");
-                myAgent.send(answer);
+                sendOrder(ACLMessage.INFORM, buyerAgents[i],"electricity-trade",
+                        "you lose","order" + System.currentTimeMillis());
+//                ACLMessage answer = new ACLMessage(ACLMessage.INFORM);
+//                answer.addReceiver(buyerAgents[i]);
+//                answer.setContent("you lose");
+//                answer.setReplyWith("order" + System.currentTimeMillis());
+//
+//                answer.setConversationId("electricity-trade");
+//                myAgent.send(answer);
                 //printSendMsg(answer);
             }
         }
