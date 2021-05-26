@@ -2,7 +2,7 @@ package com.arrenaid.mmarketREST.controllermultiagent.seller;
 
 
 import com.arrenaid.mmarketREST.controllermultiagent.Market;
-import com.arrenaid.mmarketREST.controller.RandValue;
+import com.arrenaid.mmarketREST.controllermultiagent.RandValue;
 import com.arrenaid.mmarketREST.model.entity.Grid;
 import jade.core.AID;
 import jade.core.Agent;

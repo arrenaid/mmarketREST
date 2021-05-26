@@ -159,7 +159,7 @@ public class RequestPerformer extends CyclicBehaviour {//Behaviour done
         while(true){
             ACLMessage msg = myAgent.receive();
             if(msg !=null) {
-                printGotMsg(msg);
+                Market.printMsg("RP> - ClearMsg\nRP",String.valueOf(step),msg);
             }
             else return;
         }
@@ -171,20 +171,6 @@ public class RequestPerformer extends CyclicBehaviour {//Behaviour done
         reply.setContent(content);
         myAgent.send(reply);
         //printSendMsg(reply);
-    }
-    public void printGotMsg(ACLMessage msg){
-        String str = "RP> -- step - " + step + " To -- " + myAgent.getLocalName() +
-                " , got content -- " + msg.getContent() + ",\n\tForm -- " + msg.getSender().getLocalName()
-                + " -- ConversationId -- "+ msg.getConversationId() + " -- Performative -- "+ msg.getPerformative();
-        System.out.println(str);
-        //Main.controller.addTextAgent(str);
-    }
-    public void printSendMsg(ACLMessage msg){
-        String str ="RP> -- step - " + step + " Form -- " + myAgent.getLocalName()
-                +" Send -- " + msg.getContent() + ",\n\tTo -- " + msg.getSender().getLocalName()
-                + " -- ConversationId -- "+ msg.getConversationId() + " -- Performative -- "+ msg.getPerformative();
-        System.out.println(str);
-        //Main.controller.addTextAgent(str);
     }
 
     public void dataChange(){
@@ -223,7 +209,7 @@ public class RequestPerformer extends CyclicBehaviour {//Behaviour done
     public void firstReceive(){
         ACLMessage order = myAgent.receive(mt);
         if (order != null) {
-            printGotMsg(order);
+            Market.printMsg("RP",String.valueOf(step),order);
             if (order.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {// This is an offer
                 System.out.println("RP>-\t -- ACCEPT -- \ts- " + myAgent.getLocalName()+ "\tbs- " + bestSeller);
                 double price = Double.parseDouble(order.getContent());

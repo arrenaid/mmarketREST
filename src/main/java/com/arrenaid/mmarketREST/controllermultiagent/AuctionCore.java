@@ -1,36 +1,11 @@
 package com.arrenaid.mmarketREST.controllermultiagent;
 
-import jade.core.AID;
-import jade.lang.acl.ACLMessage;
-
+import com.arrenaid.mmarketREST.controllermultiagent.seller.Content;
+import com.arrenaid.mmarketREST.model.entity.Loyalty;
 import java.util.*;
 
 public class AuctionCore {
-    private static class Participant{
-        private AID participant;
-        private Double volume;
-        private Double cost;
-//        private ACLMessage message;
-//        private Double buyerVCGPrice;
-    }
-    private List<Participant> participantList;
-    private List<AID> participant;
-    private ArrayList<Double> volume;
-    private LinkedList<Double> cost;
-//    private LinkedList<ACLMessage> message;
-//    private LinkedList<Double> buyerVCGPrice;
-
-    private double sellerVolume;
-    private double sellerPrice;
-
-
-    AuctionCore(AID [] participant, Double [] volume, Double [] cost){
-        this.participant = Arrays.asList(participant);
-        this.volume =  new ArrayList<>(Arrays.asList(volume));
-        this.cost = new LinkedList<>(Arrays.asList(cost));
-    }
-
-    private double getPrice(double volume1, double price1, double volume2,double price2){
+    private static double getPrice(double volume1, double price1, double volume2,double price2){
         double res1= (((volume1+volume2)/2)*((price1+price2)/2)) ;
         double res2 = ((volume1+volume2)/2)*price1;
         double res3 = ((volume1+volume2)/2)*price2;
@@ -44,63 +19,139 @@ public class AuctionCore {
         double res5 = res4 / oddsVol;
         return res + res5;
     }
-    private int getWinner(int cnt111){
-        double sumCost = 0;
-        double sumVolume = 0;
-//        Iterator<Double> iterator = cost.iterator();
-//        while (iterator.hasNext()){
-//            sumCost += iterator.next();
-//        }
-        for(double i: cost){ sumCost +=i; }
-        for(double i: volume){ sumVolume+=i; }
-        double  oddsCost = getPrice(sumVolume,sellerPrice,sumVolume/volume.size(),sumCost/cost.size());
-        double odds;
+    public static Content getWinnerCustomAuction(List<Content> participantList, double volume, double cost){
+        Content winner = null;
+        double totalCost = 0;
+        double totalVolume = 0;
         double bestOdds = 0;
-        int result = 0;
-        for(int i = 0; i < cost.size(); i++){
-            odds = getPrice(sellerVolume,sellerPrice,volume.get(i),cost.get(i)) - oddsCost;
-            if((odds*odds) >= (bestOdds*bestOdds)){
-                bestOdds = odds;
-                result = i;
+        int number = 0;
+        Iterator<Content> iterator = participantList.iterator();
+        while (iterator.hasNext()){
+            Content participant = iterator.next();
+            if(participant.isParticipant()){
+                totalCost += participant.getCost();
+                totalVolume += participant.getVolume();
+                number++;
             }
         }
-        return result;
-    }
-    private int getWinnerFirstPriceAuction(int cnt){
-        int winner = 0;
-        double bestPrice = cost.get(0);
-        for(int i = 1; i < cnt; i++){
-            if((cost.get(i)) > (bestPrice)){
-                bestPrice = cost.get(i);
-                winner = i;
+        double  oddsCost = getPrice(volume,cost,totalVolume/number,totalCost/number);
+        ListIterator<Content> listIterator = participantList.listIterator();
+        while(listIterator.hasNext()){
+            Content entry = listIterator.next();
+            if(entry.isParticipant()){
+                double odds = getPrice(volume, cost, entry.getVolume(), entry.getCost() - oddsCost);
+                entry.setCalculatedPrice(odds);
+                listIterator.set(entry);
+                if(Math.pow(odds,2) >= Math.pow(bestOdds,2)){
+                    bestOdds = odds;
+                    winner = entry;
+                }
             }
         }
         return winner;
     }
-
-    public double getFirstPrice(){//int cnt
-        double firstPrice = cost.get(0);
-        for(int i = 1; i < cost.size(); i++){
-            if((cost.get(i)) > (firstPrice)){
-                firstPrice = cost.get(i);
+    public static Content getWinnerFirstPriceAuction(List<Content> participantList){
+        Content winner = null;
+        double bestOffer = 0;
+        Iterator<Content> iterator = participantList.iterator();
+        while(iterator.hasNext()){
+            Content participant = iterator.next();
+            if(participant.isParticipant()) {
+                if (participant.getCost() > bestOffer) {
+                    bestOffer = participant.getCost();
+                    winner = participant;
+                }
             }
         }
-        return firstPrice;
+        return winner;
     }
-    public double getSecondPrice(){
-        double bestPrice = cost.get(0);
-        double secondPrice = cost.get(0);
-        for(int i = 1; i < cost.size(); i++){
-            if((cost.get(i)) > (bestPrice)){
-                secondPrice = bestPrice;
-                bestPrice = cost.get(i);
+    public static double getFirstPrice(List<Content> participantList){
+        double bestOffer = 0;
+        Iterator<Content> iterator = participantList.iterator();
+        while (iterator.hasNext()) {
+            Content participant = iterator.next();
+            if(participant.isParticipant()) {
+                if (participant.getCost() > bestOffer) {
+                    bestOffer = participant.getCost();
+                }
             }
-            else
-            if(cost.get(i) > secondPrice && cost.get(i) != bestPrice )
-                secondPrice = cost.get(i);
-
         }
-        return secondPrice;
+        return bestOffer;
+    }
+    public static double getSecondPrice(List<Content> participantList){
+        double bestOffer = 0;
+        double secondOffer = 0;
+        Iterator<Content> iterator = participantList.iterator();
+        while (iterator.hasNext()) {
+            Content participant = iterator.next();
+            if (participant.isParticipant()) {
+                if (participant.getCost() > bestOffer) {
+                    secondOffer = bestOffer;
+                    bestOffer = participant.getCost();
+                } else if (participant.getCost() > secondOffer && participant.getCost() != bestOffer) {
+                    secondOffer = participant.getCost();
+                }
+            }
+        }
+        return secondOffer;
+    }
+    public static Content getWinnerVSGAuction(List<Content> participantList,String agentName,double maxVolume){
+        Content winner = null;
+        double bestOffer = 0;
+        double totalAmount = 0;//общее влияние
+        List<Integer> rankList = new ArrayList<>();//показатель совместимости покупателя и продавца
+        int matrix[][] = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} };
+        int index = 0;
+        Iterator<Content> iterator = participantList.iterator();//выясняем рейтинг и влияние
+        while (iterator.hasNext()){
+            Content participant = iterator.next();
+            if(participant.isParticipant()){
+                int rank = getRankLoyalty(agentName, participant.getAgent().getLocalName());
+                int sector = 0;
+                if(participant.getVolume() > (maxVolume/3)) {
+                    sector = 1;
+                }
+                if(participant.getVolume()  > (maxVolume/3)*2) {
+                    sector = 2;
+                }
+                rankList.add(matrix[rank][sector]);
+                totalAmount += participant.getCost() * rankList.get(index);
+                index++;
+            }
+        }
+        index = 0;
+        ListIterator<Content> listIterator = participantList.listIterator();//получаем цену для каждого учасника
+        while (listIterator.hasNext()){
+            Content next = listIterator.next();
+            if(next.isParticipant()){
+                double difference = totalAmount - (next.getCost() * rankList.get(index));//вычитаем влияние учасника из общего
+                next.setCalculatedPrice(totalAmount / (rankList.get(index) + difference));//делим общее влияние на сумму чужего с нашим рангом. очень спорный момент.
+                listIterator.set(next);
+                System.out.println("ORS> --\tWCG\nseller - " + agentName +"\tbuyer - " + next.getAgent().getLocalName()
+                        + "\ntotalAmount: " + totalAmount + "\trating: " + rankList.get(index) + "\tdifference: "
+                        + difference + "\n\t\tprice: "+next.getCalculatedPrice());
+                index++;
+            }
+        }
+        Iterator<Content> finalIterator = participantList.iterator();//побеждает самая крупная сумма ( должен победить тот кто наносит наименьшее влияние)
+        while (finalIterator.hasNext()){
+            Content holder = finalIterator.next();
+            if(holder.isParticipant()){
+                if(holder.getCalculatedPrice() > bestOffer){
+                    winner = holder;
+                    bestOffer = holder.getCalculatedPrice();
+                }
+            }
+        }
+        return winner;
+    }
+    private static int getRankLoyalty(String sellerName, String buyerName){
+        Loyalty loyalty = Market.findLoyalty(sellerName, buyerName);
+        if (loyalty.getTotaltrade() >= 1)
+            return  1;
+        if (loyalty.getTotaltrade() >= 3)
+            return  2;
+        return 0;
     }
 
 }

@@ -11,7 +11,7 @@ import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
-import com.arrenaid.mmarketREST.controller.RandValue;
+import com.arrenaid.mmarketREST.controllermultiagent.RandValue;
 //import sample.Controller;
 
 import java.util.Iterator;
