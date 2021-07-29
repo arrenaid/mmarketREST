@@ -14,7 +14,7 @@
 	<name>mmarketREST</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
-		<java.version>16</java.version>
+		<java.version>12</java.version>
 	</properties>
 	<dependencies>
 <!--		<dependency>-->
@@ -56,7 +56,11 @@
 <!--			<artifactId>poi</artifactId>-->
 <!--			<version>5.0.0</version>-->
 <!--		</dependency>-->
-
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>3.8.1</version>
+		</dependency>
 	</dependencies>
 
 
@@ -79,8 +83,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>15</source>
-                    <target>15</target>
+                    <source>12</source>
+                    <target>12</target>
                 </configuration>
             </plugin>
         </plugins>

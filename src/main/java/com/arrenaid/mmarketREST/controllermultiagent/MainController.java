@@ -12,6 +12,8 @@ import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -62,7 +64,7 @@ public class MainController{
                     break;
                 case 1:
                     System.out.println("MC> -- 1 -- ");
-                    System.out.println(gridsList);
+                    System.out.println(Arrays.asList(grids));
                     index = 451;
                     break;
                 case 2:
@@ -100,7 +102,8 @@ public class MainController{
             grid.setCost(r.RandValue(19,99));
         }
         grid.setRole(role);
-        gridsList.add(grid);
+        //gridsList.add(grid);
+        grids.put(grid.getName(),grid);
         return grid.getName();
     }
     private void initNewAgent(Role role){

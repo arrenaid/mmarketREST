@@ -18,14 +18,12 @@ import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 public class AgentBuyer extends Agent {
-    // The title of the book to buy
-    public static  double targetVolume;
-    // The list of known seller agents
+    public double targetVolume;
     private AID[] sellerAgents;
     // Put agent initializations HERE
-    public static   double currentVolume;
-    public static   double maxVolume;
-    public static  double maxCost;
+    public double currentVolume;
+    public double maxVolume;
+    public double maxCost;
     //time
     private long tick = TimeUnit.SECONDS.toMillis(5);
     private int countTick = 0;
@@ -92,7 +90,7 @@ public class AgentBuyer extends Agent {
 //                }
 //            }
 //        }
-        Market.removeGrid(this.getLocalName());
+        Market.grids.remove(this.getLocalName());
 //        Controller.updateTableViewGrids();
         Market.setCountBuyer(Market.getCountBuyer()-1);
         System.out.println("Buyer-agent "+getAID().getName()+" terminating.");
@@ -134,8 +132,9 @@ public class AgentBuyer extends Agent {
         targetVolume = maxVolume - currentVolume;
     }
     private void init(){
-        Grid grid = Market.findGridInGridList(this.getLocalName());
+        Grid grid = Market.grids.get(this.getLocalName());
         if(grid == null){
+            System.out.println("Error: class - AgentBuyer: don`t find grid in grids. don`t find - " + this.getLocalName());
             initRand();
         }
         else{
@@ -143,7 +142,9 @@ public class AgentBuyer extends Agent {
             currentVolume = grid.getCurrentVolume();
             maxCost = grid.getCost();
             targetVolume = maxVolume - currentVolume;
-            Market.gridsList.get(Market.gridsList.indexOf(grid)).setStatus(true);
+            //Market.gridsList.get(Market.gridsList.indexOf(grid)).setStatus(true);
+            grid.setStatus(true);
+            Market.grids.put(this.getLocalName(),grid);
         }
     }
 //    private void init(){
@@ -164,12 +165,14 @@ public class AgentBuyer extends Agent {
 //        }
 //    }
     public void dataChange(){
-//        DatabaseHandler dbh = new DatabaseHandler();
-        for(int i = 0; i < Market.gridsList.size(); i++ ) {
-            if (this.getLocalName().equals(Market.gridsList.get(i).getName())) {
-//                dbh.gridUpdate(Controller.gridsList.get(i));
-            }
-        }
+////        DatabaseHandler dbh = new DatabaseHandler();
+//        for(int i = 0; i < Market.gridsList.size(); i++ ) {
+//            if (this.getLocalName().equals(Market.gridsList.get(i).getName())) {
+////                dbh.gridUpdate(Controller.gridsList.get(i));
+//            }
+//        }
+
+
     }
     public void dataChange(Grid grid){
 //        DatabaseHandler dbh = new DatabaseHandler();

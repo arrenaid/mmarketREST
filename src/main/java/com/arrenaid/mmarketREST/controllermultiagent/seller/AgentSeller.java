@@ -101,7 +101,7 @@ public class AgentSeller extends Agent {
 //                Market.gridsList.remove(i);
 //            }
 //        }
-        Market.removeGrid(this.getLocalName());
+        Market.grids.remove(this.getLocalName());
         //Controller.updateTableViewGrids();
         Market.setCountSeller(Market.getCountSeller() -1);
         System.out.println("Seller-agent "+getAID().getName()+" terminating.");
@@ -114,8 +114,9 @@ public class AgentSeller extends Agent {
 
     }
     private void init(){
-        Grid grid = Market.findGridInGridList(this.getLocalName());
+        Grid grid = Market.grids.get(this.getLocalName());
         if(grid == null){
+            System.out.println("Error: class - AgentBuyer: don`t find grid in grids. don`t find - " + this.getLocalName());
             initRand();
         }
         else{
@@ -162,12 +163,12 @@ public class AgentSeller extends Agent {
        //Main.controller.addTextAgent(str);
     }
     public void dataChange(){
-//        DatabaseHandler dbh = new DatabaseHandler();
-        for(int i = 0; i < Market.gridsList.size(); i++ ) {
-            if (this.getLocalName().equals(Market.gridsList.get(i).getName())) {
-//                dbh.gridUpdate(Controller.gridsList.get(i));
-            }
-        }
+////        DatabaseHandler dbh = new DatabaseHandler();
+//        for(int i = 0; i < Market.gridsList.size(); i++ ) {
+//            if (this.getLocalName().equals(Market.gridsList.get(i).getName())) {
+////                dbh.gridUpdate(Controller.gridsList.get(i));
+//            }
+//        }
     }
     public void dataChange(Grid grid){
 //        DatabaseHandler dbh = new DatabaseHandler();

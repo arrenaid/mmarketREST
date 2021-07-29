@@ -10,14 +10,13 @@ import jade.lang.acl.ACLMessage;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
 @Getter
 @Setter
 public class Market {
-    static public LinkedList<Grid> gridsList;
+    //static public LinkedList<Grid> gridsList;
+    static public Map<String,Grid> grids;
     //static public ArrayList<Grid> waitGridsList;
     //static public ArrayList<Grid> oldGridsList;
     static public LinkedList<Trade> tradesList;
@@ -35,32 +34,37 @@ public class Market {
     @Setter
     static private Auction auctionUse = Auction.SECOND;
 
-    public static Grid findGridInGridList(String name){
-        Iterator<Grid> iterator = gridsList.iterator();
-        while(iterator.hasNext()){
-            Grid result = iterator.next();
-            if(result.getName().equals(name))
-                return result;
-        }
-        return null;
-    }
+//    public static Grid findGridInGridList(String name){
+//        Iterator<Grid> iterator = gridsList.iterator();
+//        while(iterator.hasNext()){
+//            Grid result = iterator.next();
+//            if(result.getName().equals(name))
+//                return result;
+//        }
+//        return null;
+//    }
+
+//    public static Grid findGridInMap(String name){
+//        return mapGrids.get(name);
+//    }
 
     public static void initMarket() {
-        gridsList = new LinkedList<>();
+        grids = new HashMap<>();
+        //gridsList = new LinkedList<>();
         tradesList = new LinkedList<>();
         loyalties = new LinkedList<>();
     }
 
-    public static boolean removeGrid(String name) {
-        Iterator<Grid> iterator = Market.gridsList.iterator();
-        while (iterator.hasNext()){
-            if(iterator.next().getName().equals(name)){
-                iterator.remove();
-                return true;
-            }
-        }
-        return false;
-    }
+//    public static boolean removeGrid(String name) {
+//        Iterator<Grid> iterator = Market.gridsList.iterator();
+//        while (iterator.hasNext()){
+//            if(iterator.next().getName().equals(name)){
+//                iterator.remove();
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 //
 //    public void sendReply(ACLMessage msg, String conversationId, int perf, String content){
 //        ACLMessage reply = msg.createReply();

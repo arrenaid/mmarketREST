@@ -195,16 +195,19 @@ public class OfferRequestsServer extends CyclicBehaviour {
 
     public void dataChangeCurrentVolume(double change){
         currentVolume -=change;
-       //DatabaseHandler dbh = new DatabaseHandler();
-        for(int i = 0; i < Market.gridsList.size(); i++ ) {
-            if (myAgent.getLocalName().equals(Market.gridsList.get(i).getName())) {
-                Market.gridsList.get(i).setCurrentVolume(currentVolume);
-                //dbh.gridUpdate(Controller.gridsList.get(i));
-            }
-        }
+//       //DatabaseHandler dbh = new DatabaseHandler();
+//        for(int i = 0; i < Market.gridsList.size(); i++ ) {
+//            if (myAgent.getLocalName().equals(Market.gridsList.get(i).getName())) {
+//                Market.gridsList.get(i).setCurrentVolume(currentVolume);
+//                //dbh.gridUpdate(Controller.gridsList.get(i));
+//            }
+//        }
+        Grid changes = Market.grids.get(myAgent.getLocalName());
+        changes.setCurrentVolume(currentVolume);
+        Market.grids.put(myAgent.getLocalName(),changes);
     }
     public void updateDataAgent(){
-        Grid grid = Market.findGridInGridList(myAgent.getLocalName());
+        Grid grid = Market.grids.get(myAgent.getLocalName());
         if(grid == null){
             myAgent.doDelete();
         }

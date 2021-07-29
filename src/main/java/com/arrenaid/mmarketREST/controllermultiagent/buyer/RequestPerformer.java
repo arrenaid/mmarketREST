@@ -174,13 +174,13 @@ public class RequestPerformer extends CyclicBehaviour {//Behaviour done
     }
 
     public void dataChange(){
-        //DatabaseHandler dbh = new DatabaseHandler();
-        for(int i = 0; i < Market.gridsList.size(); i++ ) {
-            if (myAgent.getLocalName().equals(Market.gridsList.get(i).getName())) {
-                Market.gridsList.get(i).setCurrentVolume( Market.gridsList.get(i).getCurrentVolume() +targetVolume);
-                //dbh.gridUpdate(Controller.gridsList.get(i));
-            }
-        }
+//        //DatabaseHandler dbh = new DatabaseHandler();
+//        for(int i = 0; i < Market.gridsList.size(); i++ ) {
+//            if (myAgent.getLocalName().equals(Market.gridsList.get(i).getName())) {
+//                Market.gridsList.get(i).setCurrentVolume( Market.gridsList.get(i).getCurrentVolume() +targetVolume);
+//                //dbh.gridUpdate(Controller.gridsList.get(i));
+//            }
+//        }
     }
     public void updateDataAgent(){
 //        try {
@@ -199,7 +199,7 @@ public class RequestPerformer extends CyclicBehaviour {//Behaviour done
 //            e.printStackTrace();
 //            updateDataAgent();
 //        }
-        Grid grid = Market.findGridInGridList(myAgent.getLocalName());
+        Grid grid = Market.grids.get(myAgent.getLocalName());
         if(grid == null || grid.getCurrentVolume() >= grid.getMaxVolume()){
             myAgent.doDelete();
         }
