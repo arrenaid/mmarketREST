@@ -5,7 +5,7 @@ package com.arrenaid.mmarketREST.model.entity;
 //import javafx.beans.property.SimpleStringProperty;
 //import javafx.beans.property.StringProperty;
 
-import com.arrenaid.mmarketREST.model.Role;
+import com.arrenaid.mmarketREST.controllermultiagent.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

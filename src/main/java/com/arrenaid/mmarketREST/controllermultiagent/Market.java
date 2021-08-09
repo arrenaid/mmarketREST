@@ -1,11 +1,9 @@
 package com.arrenaid.mmarketREST.controllermultiagent;
 
-import com.arrenaid.mmarketREST.model.Auction;
+import com.arrenaid.mmarketREST.controllermultiagent.auction.AuctionState;
 import com.arrenaid.mmarketREST.model.entity.Grid;
 import com.arrenaid.mmarketREST.model.entity.Loyalty;
 import com.arrenaid.mmarketREST.model.entity.Trade;
-import jade.core.AID;
-import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,7 +30,7 @@ public class Market {
     static private int countSeller = 0;
     @Getter
     @Setter
-    static private Auction auctionUse = Auction.SECOND;
+    static private AuctionState auctionUse = AuctionState.SECOND;
 
 //    public static Grid findGridInGridList(String name){
 //        Iterator<Grid> iterator = gridsList.iterator();
@@ -53,6 +51,14 @@ public class Market {
         //gridsList = new LinkedList<>();
         tradesList = new LinkedList<>();
         loyalties = new LinkedList<>();
+    }
+    public static void printGrids(){
+        for(Map.Entry<String,Grid> map : grids.entrySet()){
+            System.out.println(map.getKey() + " "+ map.getValue().getRole() + " "+ map.getValue().isStatus()
+                    + "\n\tcost: "+ map.getValue().getCost()
+                    + "\n\tmax volume: " + map.getValue().getMaxVolume()
+                    + "\n\tcurrent volume: "+ map.getValue().getCurrentVolume());
+        }
     }
 
 //    public static boolean removeGrid(String name) {

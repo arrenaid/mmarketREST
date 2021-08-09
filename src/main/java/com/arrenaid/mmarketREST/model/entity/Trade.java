@@ -1,6 +1,6 @@
 package com.arrenaid.mmarketREST.model.entity;
 
-import com.arrenaid.mmarketREST.model.Auction;
+import com.arrenaid.mmarketREST.controllermultiagent.auction.AuctionState;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,10 +36,10 @@ public class Trade {
 //    @Column(name = "trade_time")
     private Time time;
 //    @Column
-    private Auction auction;
+    private AuctionState auction;
 
 //    //для нового класса
-    public Trade(String sellerName, String buyerName, double volume, double price,Auction auction ) {
+    public Trade(String sellerName, String buyerName, double volume, double price, AuctionState auction ) {
         this.sellerName = sellerName;
         this.buyerName = buyerName;
         this.volume = volume;

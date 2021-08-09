@@ -1,9 +1,5 @@
 package com.arrenaid.mmarketREST.controllermultiagent;
 
-
-import com.arrenaid.mmarketREST.controllermultiagent.seller.AgentSeller;
-import com.arrenaid.mmarketREST.controllermultiagent.RandValue;
-import com.arrenaid.mmarketREST.model.Role;
 import com.arrenaid.mmarketREST.model.entity.Grid;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
@@ -12,9 +8,6 @@ import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Scanner;
 
 import static com.arrenaid.mmarketREST.controllermultiagent.Market.*;
@@ -22,7 +15,7 @@ import static com.arrenaid.mmarketREST.controllermultiagent.Market.*;
 //дописал component
 @Component
 public class MainController{
-    private static final int numberOfAgents = 1;
+    private final int numberOfAgents = 0;
     private int countBuyer = 1;
     private int countSeller = 1;
     private Runtime rt;
@@ -64,7 +57,7 @@ public class MainController{
                     break;
                 case 1:
                     System.out.println("MC> -- 1 -- ");
-                    System.out.println(Arrays.asList(grids));
+                    Market.printGrids();
                     index = 451;
                     break;
                 case 2:

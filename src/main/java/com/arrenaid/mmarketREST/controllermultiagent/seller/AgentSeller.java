@@ -18,9 +18,9 @@ import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 public class AgentSeller extends Agent {
-    public static   double maxVolume;
-    public static   double currentVolume;
-    public static   double price;
+    private double maxVolume;
+    private double currentVolume;
+    private double price;
     //public ACLMessage[] buyerMsg;
     //private AID[] buyerAgents;//del
     private int buyerCnt;

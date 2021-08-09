@@ -1,8 +1,7 @@
 package com.arrenaid.mmarketREST.controllermultiagent.seller;
 
-import com.arrenaid.mmarketREST.controllermultiagent.AuctionCore;
+import com.arrenaid.mmarketREST.controllermultiagent.auction.*;
 import com.arrenaid.mmarketREST.controllermultiagent.Market;
-import com.arrenaid.mmarketREST.model.Auction;
 import com.arrenaid.mmarketREST.model.entity.Grid;
 import com.arrenaid.mmarketREST.model.entity.Loyalty;
 import jade.core.AID;
@@ -16,16 +15,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class OfferRequestsServer extends CyclicBehaviour {
-    private Level level = Level.ENTRY;
-    private Auction auction = Auction.SECOND;
+    private SellerState level = SellerState.ENTRY;
+    private AuctionState auction = AuctionState.SECOND;
     private double maxVolume;
     private double currentVolume;
     private double price;
-    private List<Content> gears;
+    private List<CoreAuction> gears;
     private MessageTemplate mt; // The template to receive replies
 
     public OfferRequestsServer(double volume, double price, ACLMessage [] msg, int cnt){
-        if(cnt <= 0) level = Level.EXIT;
+        if(cnt <= 0) level = SellerState.EXIT;
         this.currentVolume = volume;
         this.price = price;
         List<ACLMessage> listMsg = new LinkedList<>(Arrays.asList(msg));
@@ -43,9 +42,9 @@ public class OfferRequestsServer extends CyclicBehaviour {
                 // Message received. Process it
                 // Prepare the template to get proposals
                 mt = MessageTemplate.MatchConversationId(Market.conversation);
-                Iterator<Content> iterator = gears.iterator();
+                Iterator<CoreAuction> iterator = gears.iterator();
                 while (iterator.hasNext()){
-                    Content content = iterator.next();
+                    CoreAuction content = iterator.next();
                     if(!content.getMessage().equals(null)){
                         if(content.getMessage().getPerformative() == ACLMessage.CFP){
                             String [] receiveContent = content.getMessage().getContent().split(";");;
@@ -74,28 +73,29 @@ public class OfferRequestsServer extends CyclicBehaviour {
                         }
                     }
                 }
-                if(countCfp == 0) level = Level.EXIT;
-                else level = Level.AUCTION;
+                if(countCfp == 0) level = SellerState.EXIT;
+                else level = SellerState.AUCTION;
                 break;
             case AUCTION:
+                List agentData = List.of(myAgent.getLocalName(), maxVolume,currentVolume, price);
+                CoreAuction winner = null;
                 switch (auction){
                     case CUSTOM:
-                        Content winnerCustomAuction = AuctionCore.getWinnerCustomAuction(gears, currentVolume, price);
-                        auctionDataProcessing(winnerCustomAuction,winnerCustomAuction.getCalculatedPrice());
+                        winner = new CustomAuction().getWinner(gears,agentData);
                         break;
                     case FIRST:
-                        auctionDataProcessing(AuctionCore.getWinnerFirstPriceAuction(gears),AuctionCore.getFirstPrice(gears));
+                        winner = new FirstPriceAuction().getWinner(gears,agentData);
                         break;
                     case SECOND:
-                        auctionDataProcessing(AuctionCore.getWinnerFirstPriceAuction(gears),AuctionCore.getSecondPrice(gears));
+                        winner = new SecondPriceAuction().getWinner(gears,agentData);
                         break;
                     case VSG:
-                        Content winnerVSGAuction = AuctionCore.getWinnerVSGAuction(gears, myAgent.getLocalName(), maxVolume);
-                        auctionDataProcessing(winnerVSGAuction,winnerVSGAuction.getCalculatedPrice());
+                        winner = new VCGAuction().getWinner(gears,agentData);
                         break;
                     default:
                         System.out.println("ORS>-\t -- ERROR ENUM -- ERROR ENUM -- -- AUCTION -- \ts- " + myAgent.getLocalName());
                 }
+                auctionDataProcessing(winner,winner.getCalculatedPrice());
                 break;
             case RESULT:
                 //block();
@@ -113,7 +113,7 @@ public class OfferRequestsServer extends CyclicBehaviour {
                             sendReply(msg, msg.getConversationId(), ACLMessage.PROPOSE, "END");
 //                                currentVolume -= receiveVolume;
                             dataChangeCurrentVolume(receiveVolume);
-                            if(auction.equals(Auction.VSG)) {
+                            if(auction.equals(AuctionState.VSG)) {
                                 if (Market.findLoyalty(myAgent.getLocalName(),msg.getSender().getLocalName()) != null)
                                     updateLoyalty(msg, receiveCost, receiveVolume);
                                 else
@@ -132,7 +132,7 @@ public class OfferRequestsServer extends CyclicBehaviour {
                     if(msg.getPerformative() == ACLMessage.DISCONFIRM){
                         Market.printMsg("ORS",level.toString(),msg);
                     }
-                    level = Level.EXIT;
+                    level = SellerState.EXIT;
                 }
                 else {
                     block();
@@ -146,7 +146,7 @@ public class OfferRequestsServer extends CyclicBehaviour {
                 break;
             default:
                System.out.println("ORS> -- ERROR PROBLEM --- level: "+ level + "\t- " + myAgent.getLocalName());
-               level = Level.EXIT;
+               level = SellerState.EXIT;
         }
     }
     public void sendReply(ACLMessage msg, String conversationId, int perf, String content){
@@ -167,15 +167,15 @@ public class OfferRequestsServer extends CyclicBehaviour {
        Market.printMsg("ORS", level.toString(),order);
    }
 
-    private void auctionDataProcessing(Content winner, double finalPrice){
+    private void auctionDataProcessing(CoreAuction winner, double finalPrice){
         boolean verification = true;
         if(!(winner.getVolume() <= currentVolume)){
             verification = false;
-            level = Level.EXIT;
+            level = SellerState.EXIT;
         }
-        Iterator<Content> iterator = gears.iterator();
+        Iterator<CoreAuction> iterator = gears.iterator();
         while(iterator.hasNext()){
-            Content element = iterator.next();
+            CoreAuction element = iterator.next();
             if(element.isParticipant()){
                if(element.equals(winner) && verification){
                    String replyW = "order" + System.currentTimeMillis();
@@ -183,7 +183,7 @@ public class OfferRequestsServer extends CyclicBehaviour {
                            String.valueOf(finalPrice),replyW);
                    mt = MessageTemplate.and(MessageTemplate.MatchConversationId(Market.conversation),
                            MessageTemplate.MatchInReplyTo(replyW));
-                   level = Level.RESULT;
+                   level = SellerState.RESULT;
                }
                else {
                    sendOrder(ACLMessage.INFORM, element.getAgent(), Market.conversation,
@@ -247,8 +247,5 @@ public class OfferRequestsServer extends CyclicBehaviour {
 //                DatabaseHandler dbh = new DatabaseHandler();
 //                dbh.loyaltyUpdate(loyalty);
         }catch (Exception e){e.printStackTrace();}
-    }
-    public enum Level{
-        ENTRY, AUCTION, RESULT, EXIT,
     }
 } // End of inner class OfferRequestsSe
